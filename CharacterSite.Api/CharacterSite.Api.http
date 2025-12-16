@@ -1,0 +1,6 @@
+@CharacterSite= https://localhost:7295
+
+GET {{CharacterSite}}/character/5159f730-4df6-4fef-91a8-b7f91eea9c92
+Accept: application/json
+
+###

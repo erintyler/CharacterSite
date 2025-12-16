@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Tests/">
+    <Project Path="CharacterSite.Architecture.Tests/CharacterSite.Architecture.Tests.csproj" />
+  </Folder>
+  <Project Path="CharacterSite.Api/CharacterSite.Api.csproj" />
+  <Project Path="CharacterSite.AppHost/CharacterSite.AppHost.csproj" />
+  <Project Path="CharacterSite.Application/CharacterSite.Application.csproj" />
+  <Project Path="CharacterSite.Domain/CharacterSite.Domain.csproj" />
+  <Project Path="CharacterSite.Infrastructure/CharacterSite.Infrastructure.csproj" />
+  <Project Path="CharacterSite.Migrator/CharacterSite.Migrator.csproj" />
+  <Project Path="CharacterSite.ServiceDefaults/CharacterSite.ServiceDefaults.csproj" />
+</Solution>
