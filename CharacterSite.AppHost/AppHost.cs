@@ -1,3 +1,6 @@
+using Projects;
+using Scalar.Aspire;
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 var postgres = builder.AddPostgres("postgres")
@@ -9,12 +12,23 @@ var blobs = builder.AddAzureStorage("storage")
     .RunAsEmulator()
     .AddBlobs("characterblobs");
 
-builder.AddProject<Projects.CharacterSite_Api>("charactersite-api")
+var apiservice = builder.AddProject<CharacterSite_Api>("charactersite-api")
     .WithReference(postgresdb)
     .WithReference(blobs);
 
-builder.AddProject<Projects.CharacterSite_Migrator>("charactersite-migrator")
+builder.AddProject<CharacterSite_Web>("charactersite-web")
+    .WithReference(apiservice)
+    .WaitFor(apiservice);
+
+builder.AddProject<CharacterSite_Migrator>("charactersite-migrator")
     .WithReference(postgresdb)
     .WaitFor(postgresdb);
+
+builder.AddScalarApiReference(o =>
+    {
+        o.DefaultProxy = false;
+        o.PreferHttpsEndpoint = true;
+    })
+    .WithApiReference(apiservice);
 
 builder.Build().Run();

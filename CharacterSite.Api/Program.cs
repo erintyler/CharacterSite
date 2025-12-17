@@ -21,6 +21,15 @@ builder.UseWolverine(o =>
     o.Durability.Mode = DurabilityMode.MediatorOnly;
 });
 
+if (builder.Environment.IsDevelopment())
+    builder.Services.AddCors(o =>
+    {
+        o.AddPolicy("OpenApiPolicy", p => p
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+    });
+
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
@@ -30,29 +39,13 @@ app.MapDefaultEndpoints();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseCors();
+
+    app.MapOpenApi()
+        .RequireCors("OpenApiPolicy");
 }
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-    {
-        var forecast = Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
-                ))
-            .ToArray();
-        return forecast;
-    })
-    .WithName("GetWeatherForecast");
 
 app.MapGet("/characters/{id:guid}", async (Guid id, IMessageBus bus) =>
     {
@@ -61,7 +54,11 @@ app.MapGet("/characters/{id:guid}", async (Guid id, IMessageBus bus) =>
 
         return character.IsSuccess ? Results.Ok(character.Value) : Results.NotFound();
     })
-    .WithName("GetCharacterById");
+    .WithName("GetCharacterById")
+    .WithSummary("Get a character by ID")
+    .WithTags("Characters")
+    .Produces<CharacterResponse>()
+    .Produces(StatusCodes.Status404NotFound);
 
 app.MapGet("/pronouns", async (IMessageBus bus) =>
 {
@@ -90,8 +87,3 @@ app.MapGet("/pronouns/{id:guid}", async (Guid id, IMessageBus bus) =>
     .WithName("GetPronounById");
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

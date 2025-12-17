@@ -9,4 +9,6 @@
   <Project Path="CharacterSite.Infrastructure/CharacterSite.Infrastructure.csproj" />
   <Project Path="CharacterSite.Migrator/CharacterSite.Migrator.csproj" />
   <Project Path="CharacterSite.ServiceDefaults/CharacterSite.ServiceDefaults.csproj" />
+  <Project Path="CharacterSite.Web/CharacterSite.Web.Client/CharacterSite.Web.Client.csproj"/>
+  <Project Path="CharacterSite.Web/CharacterSite.Web/CharacterSite.Web.csproj"/>
 </Solution>

@@ -1,0 +1,6 @@
+@CharacterSite.Identity_HostAddress = http://localhost:5166
+
+GET {{CharacterSite.Identity_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
