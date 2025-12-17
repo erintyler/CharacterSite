@@ -1,10 +1,19 @@
 using CharacterSite.Domain.Entities;
 using CharacterSite.Domain.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace CharacterSite.Infrastructure.Repositories;
 
 public class PronounRepository(CharacterDbContext context) : IPronounRepository
 {
+    public Task<bool> ExistsAsync(string subject, string @object, string possessive, CancellationToken cancellationToken = default)
+    {
+        return context.Pronouns.AnyAsync(p =>
+            p.Subject == subject &&
+            p.Object == @object &&
+            p.Possessive == possessive, cancellationToken);
+    }
+
     public void Add(Pronoun pronoun)
     {
         context.Pronouns.Add(pronoun);

@@ -1,6 +1,22 @@
 @CharacterSite= https://localhost:7295
 
-GET {{CharacterSite}}/character/5159f730-4df6-4fef-91a8-b7f91eea9c92
+GET {{CharacterSite}}/characters/5159f730-4df6-4fef-91a8-b7f91eea9c92
+Accept: application/json
+
+###
+
+POST {{CharacterSite}}/pronouns
+Content-Type: application/json
+
+{
+  "subject": "she",
+  "object": "her",
+  "possessive": "hers"  
+}
+
+###
+
+GET {{CharacterSite}}/pronouns
 Accept: application/json
 
 ###

@@ -1,4 +1,8 @@
 using CharacterSite.Application.Features.Characters.Queries.GetCharacterById;
+using CharacterSite.Application.Features.Pronouns.Commands.CreatePronoun;
+using CharacterSite.Application.Features.Pronouns.Queries.GetAllPronouns;
+using CharacterSite.Application.Features.Pronouns.Queries.GetPronounById;
+using CharacterSite.Application.Models.Responses;
 using CharacterSite.Domain.Common;
 using CharacterSite.Infrastructure;
 using Wolverine;
@@ -50,7 +54,7 @@ app.MapGet("/weatherforecast", () =>
     })
     .WithName("GetWeatherForecast");
 
-app.MapGet("/character/{id:guid}", async (Guid id, IMessageBus bus) =>
+app.MapGet("/characters/{id:guid}", async (Guid id, IMessageBus bus) =>
 {
     var query = new GetCharacterByIdQuery(id);
     var character = await bus.InvokeAsync<Result<CharacterResponse>>(query);
@@ -58,6 +62,30 @@ app.MapGet("/character/{id:guid}", async (Guid id, IMessageBus bus) =>
     return character.IsSuccess ? Results.Ok(character.Value) : Results.NotFound();
 })
 .WithName("GetCharacterById");
+
+app.MapGet("/pronouns", async (IMessageBus bus) =>
+{
+    var query = new GetAllPronounsQuery();
+    var pronouns = await bus.InvokeAsync<Result<IReadOnlyList<PronounResponse>>>(query);
+
+    return pronouns.IsSuccess ? Results.Ok(pronouns.Value) : Results.BadRequest(pronouns.Error);
+});
+
+app.MapPost("/pronouns", async (CreatePronounCommand command, IMessageBus bus) =>
+{
+    var result = await bus.InvokeAsync<Result<PronounResponse>>(command);
+
+    return result.IsSuccess ? Results.CreatedAtRoute("GetPronounById", new { id = result.Value.Id }) : Results.BadRequest(result.Error);
+});
+
+app.MapGet("/pronouns/{id:guid}", async (Guid id, IMessageBus bus) =>
+{
+    var query = new GetPronounByIdQuery(id);
+    var pronoun = await bus.InvokeAsync<Result<PronounResponse>>(query);
+
+    return pronoun.IsSuccess ? Results.Ok(pronoun.Value) : Results.NotFound();
+})
+.WithName("GetPronounById");
 
 app.Run();
 

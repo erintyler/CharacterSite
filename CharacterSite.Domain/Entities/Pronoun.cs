@@ -18,9 +18,9 @@ public class Pronoun : Entity
     {
     }
     
-    public string Subject { get; }
-    public string Object { get; }
-    public string Possessive { get; }
+    public string Subject { get; private set; }
+    public string Object { get; private set; }
+    public string Possessive { get; private set; }
     
     public static Result<Pronoun> Create(Guid id, string subject, string @object, string possessive)
     {

@@ -1,4 +1,5 @@
 using CharacterSite.Application.Features.Characters.Queries;
+using CharacterSite.Application.Features.Pronouns.Queries;
 using CharacterSite.Application.Services;
 using CharacterSite.Domain.Repositories;
 using CharacterSite.Infrastructure.Queries;
@@ -27,6 +28,7 @@ public static class DependencyInjection
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             builder.Services.AddScoped<ICharacterQueries, CharacterQueries>();
+            builder.Services.AddScoped<IPronounQueries, PronounQueries>();
             
             return builder;
         }

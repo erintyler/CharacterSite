@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\CharacterSite.Api\CharacterSite.Api.csproj" />
+      <ProjectReference Include="..\CharacterSite.Migrator\CharacterSite.Migrator.csproj" />
     </ItemGroup>
 
     <ItemGroup>

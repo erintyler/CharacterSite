@@ -1,3 +1,5 @@
+using CharacterSite.Application.Models.Responses;
+
 namespace CharacterSite.Application.Features.Characters.Queries.GetCharacterById;
 
 public record CharacterResponse(
