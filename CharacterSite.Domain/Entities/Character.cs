@@ -1,4 +1,5 @@
 using CharacterSite.Domain.Common;
+using CharacterSite.Domain.Enums;
 using CharacterSite.Domain.Primitives;
 
 namespace CharacterSite.Domain.Entities;
@@ -117,27 +118,18 @@ public class Character : AggregateRoot, IAuditableEntity
         return Result.Success();
     }
 
-    public Result<Pronoun> AddPronoun(string subject, string obj, string possessive, Guid modifiedBy)
+    public Result AddPronoun(Pronoun pronoun, Guid modifiedBy)
     {
-        if (_pronouns.Any(p =>
-                p.Subject.Equals(subject, StringComparison.OrdinalIgnoreCase) &&
-                p.Object.Equals(obj, StringComparison.OrdinalIgnoreCase) &&
-                p.Possessive.Equals(possessive, StringComparison.OrdinalIgnoreCase)))
+        if (_pronouns.Any(p => p.Id == pronoun.Id))
         {
             return new Error("Character.Pronoun.Duplicate", "This pronoun already exists for the character.");
         }
 
-        var pronounResult = Pronoun.Create(Guid.NewGuid(), subject, obj, possessive);
-        if (pronounResult.IsFailure)
-        {
-            return pronounResult;
-        }
-
-        _pronouns.Add(pronounResult.Value);
+        _pronouns.Add(pronoun);
         ModifiedBy = modifiedBy;
         ModifiedOn = DateTimeOffset.UtcNow;
 
-        return pronounResult;
+        return Result.Success();
     }
 
     public Result<Pronoun> RemovePronoun(string subject, string obj, string possessive, Guid modifiedBy)
@@ -159,17 +151,20 @@ public class Character : AggregateRoot, IAuditableEntity
         return pronoun;
     }
 
-    public Result<Image> AddImage(string name, Guid modifiedBy)
+    public Result AddImage(Image image, Guid modifiedBy)
     {
-        var result = Image.Create(Guid.NewGuid(), Id, name);
+        if (_images.Any(i => i.Id == image.Id))
+            return new Error("Character.Image.Duplicate", "This image already exists for the character.");
 
-        if (result.IsFailure) return result;
+        if (image.Status is not UploadStatus.Completed)
+            return new Error("Character.Image.InvalidStatus",
+                "Only images with 'Completed' status can be added to a character.");
 
-        _images.Add(result.Value);
+        _images.Add(image);
         ModifiedBy = modifiedBy;
         ModifiedOn = DateTimeOffset.UtcNow;
 
-        return result;
+        return Result.Success();
     }
 
     public Result<Image> SetImageProcessing(Guid imageId, Guid modifiedBy)
