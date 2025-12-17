@@ -29,4 +29,10 @@
         <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\CharacterSite.Application\CharacterSite.Application.csproj"/>
+        <ProjectReference Include="..\CharacterSite.Domain\CharacterSite.Domain.csproj"/>
+        <ProjectReference Include="..\CharacterSite.Infrastructure\CharacterSite.Infrastructure.csproj"/>
+    </ItemGroup>
+
 </Project>

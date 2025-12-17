@@ -1,6 +1,4 @@
-using CharacterSite.Application.Models.Responses;
-
-namespace CharacterSite.Application.Features.Characters.Queries.GetCharacterById;
+namespace CharacterSite.Application.Models.Responses;
 
 public record CharacterResponse(
     Guid Id,

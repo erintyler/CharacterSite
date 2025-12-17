@@ -1,10 +1,12 @@
+using CharacterSite.Application.Models.Responses;
 using CharacterSite.Domain.Common;
 
-namespace CharacterSite.Application.Features.Characters.Queries.GetCharacterById;
+namespace CharacterSite.Application.Features.Characters.Queries;
 
 public class GetCharacterByIdQueryHandler
 {
-    public async Task<Result<CharacterResponse>> Handle(GetCharacterByIdQuery query, ICharacterQueries queries, CancellationToken cancellationToken)
+    public async Task<Result<CharacterResponse>> Handle(GetCharacterByIdQuery query, ICharacterQueries queries,
+        CancellationToken cancellationToken)
     {
         var character = await queries.GetCharacterByIdAsync(query.Id, cancellationToken);
 

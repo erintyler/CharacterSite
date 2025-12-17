@@ -1,11 +1,12 @@
 using CharacterSite.Application.Models.Responses;
 using CharacterSite.Domain.Common;
 
-namespace CharacterSite.Application.Features.Pronouns.Queries.GetPronounById;
+namespace CharacterSite.Application.Features.Pronouns.Queries;
 
 public class GetPronounByIdQueryHandler
 {
-    public async Task<Result<PronounResponse>> Handle(GetPronounByIdQuery query, IPronounQueries queries, CancellationToken cancellationToken)
+    public async Task<Result<PronounResponse>> Handle(GetPronounByIdQuery query, IPronounQueries queries,
+        CancellationToken cancellationToken)
     {
         var pronoun = await queries.GetPronounByIdAsync(query.Id, cancellationToken);
 
