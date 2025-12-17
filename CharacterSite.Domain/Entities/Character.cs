@@ -1,5 +1,4 @@
 using CharacterSite.Domain.Common;
-using CharacterSite.Domain.Enums;
 using CharacterSite.Domain.Primitives;
 
 namespace CharacterSite.Domain.Entities;
@@ -8,9 +7,9 @@ public class Character : AggregateRoot, IAuditableEntity
 {
     public const int NameMaxLength = 200;
     public const int DescriptionMaxLength = 5000;
-    
-    private readonly List<Pronoun> _pronouns = [];
     private readonly List<Image> _images = [];
+
+    private readonly List<Pronoun> _pronouns = [];
 
     private Character(
         Guid id,
@@ -23,21 +22,21 @@ public class Character : AggregateRoot, IAuditableEntity
         CreatedBy = createdBy;
         CreatedOn = DateTimeOffset.UtcNow;
     }
-    
+
     private Character()
     {
     }
-    
+
     public string Name { get; set; } = null!;
     public string? Description { get; set; }
+
+    public IReadOnlyList<Pronoun> Pronouns => _pronouns.AsReadOnly();
+    public IReadOnlyList<Image> Images => _images.AsReadOnly();
     public DateTimeOffset CreatedOn { get; set; }
     public Guid CreatedBy { get; set; }
     public DateTimeOffset? ModifiedOn { get; set; }
     public Guid? ModifiedBy { get; set; }
-    
-    public IReadOnlyList<Pronoun> Pronouns => _pronouns.AsReadOnly();
-    public IReadOnlyList<Image> Images => _images.AsReadOnly();
-    
+
     public static Result<Character> Create(
         Guid id,
         string name,
@@ -48,43 +47,44 @@ public class Character : AggregateRoot, IAuditableEntity
         {
             return new Error("Character.Name.Invalid", "Character name cannot be empty.");
         }
-        
-        if (name.Length > NameMaxLength) 
+
+        if (name.Length > NameMaxLength)
         {
             return new Error("Character.Name.TooLong", $"Character name cannot exceed {NameMaxLength} characters.");
         }
-        
+
         if (description?.Length > DescriptionMaxLength)
         {
-            return new Error("Character.Description.TooLong", $"Character description cannot exceed {DescriptionMaxLength} characters.");
+            return new Error("Character.Description.TooLong",
+                $"Character description cannot exceed {DescriptionMaxLength} characters.");
         }
-        
+
         if (createdBy == Guid.Empty)
         {
             return new Error("Character.CreatedBy.Invalid", "CreatedBy must be a valid user ID.");
         }
-        
+
         var character = new Character(
             id,
             name,
             description,
             createdBy);
-        
+
         return character;
     }
-    
-    public Result ChangeName(string name,  Guid modifiedBy)
+
+    public Result ChangeName(string name, Guid modifiedBy)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
             return new Error("Character.Name.Invalid", "Character name cannot be empty.");
         }
-        
-        if (name.Length > NameMaxLength) 
+
+        if (name.Length > NameMaxLength)
         {
             return new Error("Character.Name.TooLong", $"Character name cannot exceed {NameMaxLength} characters.");
         }
-        
+
         if (Name.Equals(name, StringComparison.OrdinalIgnoreCase))
         {
             return Result.Success();
@@ -93,17 +93,18 @@ public class Character : AggregateRoot, IAuditableEntity
         Name = name;
         ModifiedBy = modifiedBy;
         ModifiedOn = DateTimeOffset.UtcNow;
-        
+
         return Result.Success();
     }
-    
-    public Result ChangeDescription(string? description, Guid modifiedBy) 
+
+    public Result ChangeDescription(string? description, Guid modifiedBy)
     {
         if (description?.Length > DescriptionMaxLength)
         {
-            return new Error("Character.Description.TooLong", $"Character description cannot exceed {DescriptionMaxLength} characters.");
+            return new Error("Character.Description.TooLong",
+                $"Character description cannot exceed {DescriptionMaxLength} characters.");
         }
-        
+
         if (Description == description)
         {
             return Result.Success();
@@ -112,10 +113,10 @@ public class Character : AggregateRoot, IAuditableEntity
         Description = description;
         ModifiedBy = modifiedBy;
         ModifiedOn = DateTimeOffset.UtcNow;
-        
+
         return Result.Success();
     }
-    
+
     public Result<Pronoun> AddPronoun(string subject, string obj, string possessive, Guid modifiedBy)
     {
         if (_pronouns.Any(p =>
@@ -125,21 +126,21 @@ public class Character : AggregateRoot, IAuditableEntity
         {
             return new Error("Character.Pronoun.Duplicate", "This pronoun already exists for the character.");
         }
-        
+
         var pronounResult = Pronoun.Create(Guid.NewGuid(), subject, obj, possessive);
         if (pronounResult.IsFailure)
         {
             return pronounResult;
         }
-        
+
         _pronouns.Add(pronounResult.Value);
         ModifiedBy = modifiedBy;
         ModifiedOn = DateTimeOffset.UtcNow;
 
         return pronounResult;
     }
-    
-    public Result<Pronoun> RemovePronoun(string subject, string obj, string possessive, Guid modifiedBy) 
+
+    public Result<Pronoun> RemovePronoun(string subject, string obj, string possessive, Guid modifiedBy)
     {
         var pronoun = _pronouns.FirstOrDefault(p =>
             p.Subject.Equals(subject, StringComparison.OrdinalIgnoreCase) &&
@@ -150,23 +151,25 @@ public class Character : AggregateRoot, IAuditableEntity
         {
             return new Error("Character.Pronoun.NotFound", "The specified pronoun does not exist for the character.");
         }
-        
+
         _pronouns.Remove(pronoun);
         ModifiedBy = modifiedBy;
         ModifiedOn = DateTimeOffset.UtcNow;
-        
+
         return pronoun;
     }
 
     public Result<Image> AddImage(string name, Guid modifiedBy)
     {
-        var image = new Image(Guid.NewGuid(), Id, name, UploadStatus.Pending);
-        
-        _images.Add(image);
+        var result = Image.Create(Guid.NewGuid(), Id, name);
+
+        if (result.IsFailure) return result;
+
+        _images.Add(result.Value);
         ModifiedBy = modifiedBy;
         ModifiedOn = DateTimeOffset.UtcNow;
 
-        return image;
+        return result;
     }
 
     public Result<Image> SetImageProcessing(Guid imageId, Guid modifiedBy)
@@ -182,13 +185,13 @@ public class Character : AggregateRoot, IAuditableEntity
         {
             return Result.Failure<Image>(result.Error);
         }
-        
+
         ModifiedBy = modifiedBy;
         ModifiedOn = DateTimeOffset.UtcNow;
 
         return image;
     }
-    
+
     public Result<Image> SetImageCompleted(Guid imageId, Guid modifiedBy)
     {
         var image = _images.FirstOrDefault(i => i.Id == imageId);
@@ -202,13 +205,13 @@ public class Character : AggregateRoot, IAuditableEntity
         {
             return Result.Failure<Image>(result.Error);
         }
-        
+
         ModifiedBy = modifiedBy;
         ModifiedOn = DateTimeOffset.UtcNow;
 
         return image;
     }
-    
+
     public Result<Image> SetImageFailed(Guid imageId, Guid modifiedBy)
     {
         var image = _images.FirstOrDefault(i => i.Id == imageId);
@@ -222,13 +225,13 @@ public class Character : AggregateRoot, IAuditableEntity
         {
             return Result.Failure<Image>(result.Error);
         }
-        
+
         ModifiedBy = modifiedBy;
         ModifiedOn = DateTimeOffset.UtcNow;
 
         return image;
     }
-    
+
     public Result<Image> RemoveImage(Guid imageId, Guid modifiedBy)
     {
         var image = _images.FirstOrDefault(i => i.Id == imageId);
@@ -236,7 +239,7 @@ public class Character : AggregateRoot, IAuditableEntity
         {
             return new Error("Character.Image.NotFound", "The specified image does not exist for the character.");
         }
-        
+
         _images.Remove(image);
         ModifiedBy = modifiedBy;
         ModifiedOn = DateTimeOffset.UtcNow;
